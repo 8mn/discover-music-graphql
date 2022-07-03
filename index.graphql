@@ -1,0 +1,1987 @@
+#use @materializer and @sequence directive to stich together the different apis after one another
+
+
+schema {
+	query: Query
+}
+
+type IpApi_Location {
+	status: String
+	message: String
+	continent: String
+	continentCode: String
+	country: String
+	countryCode: String
+	region: String
+	regionName: String
+	city: String
+	district: String
+	zip: String
+	lat: Float
+	lon: Float
+	timezone: String
+	offset: Int
+	currency: String
+	isp: String
+	org: String
+	as: String
+	reserve: String
+	mobile: Boolean
+	proxy: Boolean
+	hosting: Boolean
+	ip: String
+	weather(
+		openweather_appid: Secret!
+		units: Openweather_Units
+	): Openweather_WeatherForecast
+		@materializer(
+			query: "openweather_weatherForecast"
+			arguments: [
+				{ name: "openweather_appid", argument: "openweather_appid" }
+				{ name: "units", argument: "units" }
+				{ name: "lang", field: "countryCode" }
+
+                { name: "lat", field: "lat" }
+                { name: "lon", field: "lon" }
+			]
+		)
+}
+
+type IpApi_StepZen_Request {
+	clientIp: String
+}
+
+type Openweather_Weather {
+	description: String
+	icon: String
+	id: Int
+	main: String
+
+	weather_mood_music(spotify_token: Secret!): [Spotify_Track]
+		@materializer(
+			query: "spotify_Search"
+
+			arguments: [
+				{ name: "spotify_token", argument: "spotify_token" }
+				{ name: "q", field: "description" }
+			]
+		)
+
+
+}
+
+type Openweather_Current {
+	clouds: Int
+	dew_point: Float
+	dt: Int
+	feels_like: Float
+	humidity: Int
+	pressure: Int
+	sunrise: Int
+	sunset: Int
+	temp: Float
+	uvi: Float
+	visibility: Int
+	weather: [Openweather_Weather]
+	wind_deg: Int
+	wind_speed: Float
+}
+
+type Openweather_FeelsLike {
+	day: Float
+	eve: Float
+	morn: Float
+	night: Float
+}
+
+type Openweather_Temp {
+	day: Float
+	eve: Float
+	max: Float
+	min: Float
+	morn: Float
+	night: Float
+}
+
+type Openweather_Daily {
+	clouds: Int
+	dew_point: Float
+	dt: Int
+	feels_like: Openweather_FeelsLike
+	humidity: Int
+	moon_phase: Float
+	moonrise: Int
+	moonset: Int
+	pop: Int
+	pressure: Int
+	sunrise: Int
+	sunset: Int
+	temp: Openweather_Temp
+	uvi: Float
+	weather: [Openweather_Weather]
+	wind_deg: Int
+	wind_gust: Float
+	wind_speed: Float
+}
+
+type Openweather_WeatherForecast {
+	current: Openweather_Current
+	daily: [Openweather_Daily]
+	lat: Float
+	lon: Float
+	timezone: String
+	timezone_offset: Int
+}
+
+enum Openweather_Units {
+	standard
+	metric
+	imperial
+}
+
+type Spotify_ExternalUrl {
+	spotify: String
+}
+
+type Spotify_ExternalId {
+	ean: String
+	isrc: String
+	upc: String
+}
+
+type Spotify_Albums_List_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Copyright {
+	text: String
+	type: String
+}
+
+type Spotify_Image {
+	height: Int
+	url: String
+	width: Int
+}
+
+type Spotify_Albums_List_Artist_G10 {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Albums_List_Item {
+	artists: [Spotify_Albums_List_Artist_G10]
+	available_markets: JSON
+	disc_number: Int
+	duration_ms: Int
+	explicit: Boolean
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	is_local: Boolean
+	name: String
+	preview_url: String
+	track_number: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Albums_List_Tracks {
+	href: String
+	items: [Spotify_Albums_List_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Albums_List_Album {
+	album_type: String
+	artists: [Spotify_Albums_List_Artist]
+	available_markets: JSON
+	copyrights: [Spotify_Copyright]
+	external_ids: Spotify_ExternalId
+	external_urls: Spotify_ExternalUrl
+	genres: JSON
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	label: String
+	name: String
+	popularity: Int
+	release_date: String
+	release_date_precision: String
+	total_tracks: Int
+	tracks: Spotify_Albums_List_Tracks
+	type: String
+	uri: String
+}
+
+type Spotify_Albums {
+	albums: [Spotify_Albums_List_Album]
+}
+
+type Spotify_Albums_By_Id_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Albums_By_Id_Artist_G6 {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Albums_By_Id_Item {
+	artists: [Spotify_Albums_By_Id_Artist_G6]
+	available_markets: JSON
+	disc_number: Int
+	duration_ms: Int
+	explicit: Boolean
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	is_local: Boolean
+	name: String
+	preview_url: String
+	track_number: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Albums_By_Id_Tracks {
+	href: String
+	items: [Spotify_Albums_By_Id_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Album {
+	album_type: String
+	artists: [Spotify_Albums_By_Id_Artist]
+	available_markets: JSON
+	copyrights: [Spotify_Copyright]
+	external_ids: Spotify_ExternalId
+	external_urls: Spotify_ExternalUrl
+	genres: JSON
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	label: String
+	name: String
+	popularity: Int
+	release_date: String
+	release_date_precision: String
+	total_tracks: Int
+	tracks: Spotify_Albums_By_Id_Tracks
+	type: String
+	uri: String
+}
+
+type Spotify_Album_Tracks_By__Album_Id_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Album_Tracks_By__Album_Id_Item {
+	artists: [Spotify_Album_Tracks_By__Album_Id_Artist]
+	available_markets: JSON
+	disc_number: Int
+	duration_ms: Int
+	explicit: Boolean
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	is_local: Boolean
+	name: String
+	preview_url: String
+	track_number: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Album_Tracks {
+	href: String
+	items: [Spotify_Album_Tracks_By__Album_Id_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Artists_List_Followers {
+	href: String
+	total: Int
+}
+
+type Spotify_Artists_List_Artist {
+	external_urls: Spotify_ExternalUrl
+	followers: Spotify_Artists_List_Followers
+	genres: String
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	popularity: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Artists {
+	artists: [Spotify_Artists_List_Artist]
+}
+
+type Spotify_Artist_Followers {
+	href: String
+	total: Int
+}
+
+type Spotify_Artist {
+	external_urls: Spotify_ExternalUrl
+	followers: Spotify_Artist_Followers
+	genres: String
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	popularity: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Artist_Top_Tracks_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Artist_Top_Tracks_Album {
+	album_type: String
+	artists: [Spotify_Artist_Top_Tracks_Artist]
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	release_date: String
+	release_date_precision: String
+	total_tracks: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Artist_Top_Tracks_Artist_G2 {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Artist_Top_Tracks_Track {
+	album: Spotify_Artist_Top_Tracks_Album
+	artists: [Spotify_Artist_Top_Tracks_Artist_G2]
+	disc_number: Int
+	duration_ms: Int
+	explicit: Boolean
+	external_ids: Spotify_ExternalId
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	is_local: Boolean
+	is_playable: Boolean
+	name: String
+	popularity: Int
+	preview_url: String
+	track_number: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Tracks {
+	tracks: [Spotify_Artist_Top_Tracks_Track]
+}
+
+type Spotify_Artist_Related_Artists_Followers {
+	href: String
+	total: Int
+}
+
+type Spotify_Artist_Related_Artists_Artist {
+	external_urls: Spotify_ExternalUrl
+	followers: Spotify_Artist_Related_Artists_Followers
+	genres: [String]
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	popularity: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Related_Artists {
+	artists: [Spotify_Artist_Related_Artists_Artist]
+}
+
+type Spotify_Artist_Albums_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Artist_Albums_Item {
+	album_group: String
+	album_type: String
+	artists: [Spotify_Artist_Albums_Artist]
+	available_markets: [String]
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	release_date: String
+	release_date_precision: String
+	total_tracks: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Artist_Albums {
+	href: String
+	items: [Spotify_Artist_Albums_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_New_Releases_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_New_Releases_Item {
+	album_type: String
+	artists: [Spotify_New_Releases_Artist]
+	available_markets: [String]
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	release_date: String
+	release_date_precision: String
+	total_tracks: Int
+	type: String
+	uri: String
+}
+
+type Spotify_New_Releases_Albums {
+	href: String
+	items: [Spotify_New_Releases_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_New_Releases {
+	albums: Spotify_New_Releases_Albums
+}
+
+type Spotify_Featured_Playlists_Owner {
+	display_name: String
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	type: String
+	uri: String
+}
+
+type Spotify_Featured_Playlists_Tracks {
+	href: String
+	total: Int
+}
+
+type Spotify_Featured_Playlists_Item {
+	collaborative: Boolean
+	description: String
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	owner: Spotify_Featured_Playlists_Owner
+	primary_color: String
+	public: String
+	snapshot_id: ID!
+	tracks: Spotify_Featured_Playlists_Tracks
+	type: String
+	uri: String
+}
+
+type Spotify_Featured_Playlists_Playlists {
+	href: String
+	items: [Spotify_Featured_Playlists_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Featured_Playlists {
+	message: String
+	playlists: Spotify_Featured_Playlists_Playlists
+}
+
+type Spotify_Categories_Item {
+	href: String
+	icons: [Spotify_Image]
+	id: ID!
+	name: String
+}
+
+type Spotify_Categories_Categories {
+	href: String
+	items: [Spotify_Categories_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Categories {
+	categories: Spotify_Categories_Categories
+}
+
+type Spotify_Categories_By_Id {
+	href: String
+	icons: [Spotify_Image]
+	id: ID!
+	name: String
+}
+
+type Spotify_Recommendations_Seed {
+	afterFilteringSize: Int
+	afterRelinkingSize: Int
+	href: String
+	id: ID!
+	initialPoolSize: Int
+	type: String
+}
+
+type Spotify_Recommendations {
+	seeds: [Spotify_Recommendations_Seed]
+	tracks: JSON
+}
+
+type Spotify_Search_Followers {
+	href: String
+	total: Int
+}
+
+type Spotify_Search_Item {
+	external_urls: Spotify_ExternalUrl
+	followers: Spotify_Search_Followers
+	genres: JSON
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	popularity: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Search_Artists {
+	href: String
+	items: [Spotify_Search_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Search {
+	artists: Spotify_Search_Artists
+}
+
+type Spotify_Playlists_By_Category_Owner {
+	display_name: String
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	type: String
+	uri: String
+}
+
+type Spotify_Playlists_By_Category_Tracks {
+	href: String
+	total: Int
+}
+
+type Spotify_Playlists_By_Category_Item {
+	collaborative: Boolean
+	description: String
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	images: [Spotify_Image]
+	name: String
+	owner: Spotify_Playlists_By_Category_Owner
+	primary_color: String
+	public: String
+	snapshot_id: ID!
+	tracks: Spotify_Playlists_By_Category_Tracks
+	type: String
+	uri: String
+}
+
+type Spotify_Playlists_By_Category_Playlists {
+	href: String
+	items: [Spotify_Playlists_By_Category_Item]
+	limit: Int
+	next: String
+	offset: Int
+	previous: String
+	total: Int
+}
+
+type Spotify_Playlists_For_Category {
+	playlists: Spotify_Playlists_By_Category_Playlists
+}
+
+type Spotify_Tracks_Get_List {
+	tracks: JSON
+}
+
+type Spotify_Get_A_Track_Artist {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Get_A_Track_Album {
+	album_type: String
+	artists: String
+	available_markets: String
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	images: String
+	name: String
+	release_date: String
+	release_date_precision: String
+	total_tracks: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Get_A_Track_Artist_G6 {
+	external_urls: Spotify_ExternalUrl
+	href: String
+	id: ID!
+	name: String
+	type: String
+	uri: String
+}
+
+type Spotify_Track {
+	album: String
+	artists: String
+	disc_number: Int
+	duration_ms: Int
+	explicit: Boolean
+	external_ids: String
+	external_urls: String
+	href: String
+	id: ID!
+	is_local: Boolean
+	name: String
+	popularity: Int
+	preview_url: String
+	track_number: Int
+	type: String
+	uri: String
+}
+
+type Spotify_Get_Audio_Features_For_List_Of_Tracks_Audio_Feature {
+	acousticness: Float
+	analysis_url: String
+	danceability: Float
+	duration_ms: Int
+	energy: Float
+	id: ID!
+	instrumentalness: Float
+	key: Int
+	liveness: Float
+	loudness: Float
+	mode: Int
+	speechiness: Float
+	tempo: Float
+	time_signature: Int
+	track_href: String
+	type: String
+	uri: String
+	valence: Float
+}
+
+type Spotify_Track_Audio_Features {
+	audio_features: [Spotify_Get_Audio_Features_For_List_Of_Tracks_Audio_Feature]
+}
+
+type Spotify_Audio_Features_For_A_Track {
+	acousticness: Float
+	analysis_url: String
+	danceability: Float
+	duration_ms: Int
+	energy: Float
+	id: ID!
+	instrumentalness: Float
+	key: Int
+	liveness: Float
+	loudness: Float
+	mode: Int
+	speechiness: Float
+	tempo: Float
+	time_signature: Int
+	track_href: String
+	type: String
+	uri: String
+	valence: Float
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Bar {
+	confidence: Float
+	duration: Float
+	start: Float
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Beat {
+	confidence: Float
+	duration: Float
+	start: Float
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Meta {
+	analysis_time: Float
+	analyzer_version: String
+	detailed_status: String
+	input_process: String
+	platform: String
+	status_code: Int
+	timestamp: Int
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Section {
+	confidence: Int
+	duration: Float
+	key: Int
+	key_confidence: Float
+	loudness: Float
+	mode: Int
+	mode_confidence: Float
+	start: Int
+	tempo: Float
+	tempo_confidence: Float
+	time_signature: Int
+	time_signature_confidence: Int
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Segment {
+	confidence: Int
+	duration: Float
+	loudness_end: Int
+	loudness_max: Int
+	loudness_max_time: Int
+	loudness_start: Int
+	pitches: [Float]
+	start: Int
+	timbre: [Float]
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Tatum {
+	confidence: Float
+	duration: Float
+	start: Float
+}
+
+type Spotify_Get_Audio_Analysis_For_One_Track_Track {
+	analysis_channels: Int
+	analysis_sample_rate: Int
+	code_version: Float
+	codestring: String
+	duration: Float
+	echoprint_version: Float
+	echoprintstring: String
+	end_of_fade_in: Float
+	key: Int
+	key_confidence: Float
+	loudness: Float
+	mode: Int
+	mode_confidence: Float
+	num_samples: Int
+	offset_seconds: Int
+	rhythm_version: Int
+	rhythmstring: String
+	sample_md5: String
+	start_of_fade_out: Float
+	synch_version: Int
+	synchstring: String
+	tempo: Float
+	tempo_confidence: Float
+	time_signature: Int
+	time_signature_confidence: Int
+	window_seconds: Int
+}
+
+type Spotify_Audio_Analysis_For_A_Track {
+	bars: [Spotify_Get_Audio_Analysis_For_One_Track_Bar]
+	beats: [Spotify_Get_Audio_Analysis_For_One_Track_Beat]
+	meta: Spotify_Get_Audio_Analysis_For_One_Track_Meta
+	sections: [Spotify_Get_Audio_Analysis_For_One_Track_Section]
+	segments: [Spotify_Get_Audio_Analysis_For_One_Track_Segment]
+	tatums: [Spotify_Get_Audio_Analysis_For_One_Track_Tatum]
+	track: Spotify_Get_Audio_Analysis_For_One_Track_Track
+}
+
+type Unsplash_Links {
+	followers: String
+	following: String
+	html: String
+	likes: String
+	photos: String
+	portfolio: String
+	self: String
+}
+
+type Unsplash_Meta {
+	index: Boolean
+}
+
+type Unsplash_Profile_Image {
+	large: String
+	medium: String
+	small: String
+}
+
+type Unsplash_Social {
+	instagram_username: String
+	paypal_email: String
+	portfolio_url: String
+	twitter_username: String
+}
+
+type Unsplash_Tags {
+	aggregated: JSON
+	custom: JSON
+}
+
+type Unsplash_Users {
+	accepted_tos: Boolean
+	allow_messages: Boolean
+	badge: ID
+	bio: ID
+	downloads: Int
+	first_name: String
+	followed_by_user: Boolean
+	followers_count: Int
+	following_count: Int
+	for_hire: Boolean
+	id: String
+	instagram_username: String
+	last_name: String
+	links: Unsplash_Links
+	location: ID
+	meta: Unsplash_Meta
+	name: String
+	numeric_id: Int
+	photos: JSON
+	portfolio_url: ID
+	profile_image: Unsplash_Profile_Image
+	social: Unsplash_Social
+	tags: Unsplash_Tags
+	total_collections: Int
+	total_likes: Int
+	total_photos: Int
+	twitter_username: String
+	updated_at: DateTime
+	username: String
+}
+
+type Unsplash_Users_Portfolio {
+	url: String
+}
+
+type Unsplash_Sponsor {
+	accepted_tos: Boolean
+	bio: String
+	first_name: String
+	for_hire: Boolean
+	id: String
+	instagram_username: String
+	last_name: ID
+	links: Unsplash_Links
+	location: ID
+	name: String
+	portfolio_url: String
+	profile_image: Unsplash_Profile_Image
+	social: Unsplash_Social
+	total_collections: Int
+	total_likes: Int
+	total_photos: Int
+	twitter_username: String
+	updated_at: DateTime
+	username: String
+}
+
+type Unsplash_Sponsorship {
+	impression_urls: JSON
+	sponsor: Unsplash_Sponsor
+	tagline: String
+	tagline_url: String
+}
+
+type Unsplash_Urls {
+	full: String
+	raw: String
+	regular: String
+	small: String
+	thumb: String
+}
+
+type Unsplash_User {
+	accepted_tos: Boolean
+	bio: String
+	first_name: String
+	for_hire: Boolean
+	id: String
+	instagram_username: String
+	last_name: String
+	links: Unsplash_Links
+	location: String
+	name: String
+	portfolio_url: String
+	profile_image: Unsplash_Profile_Image
+	social: Unsplash_Social
+	total_collections: Int
+	total_likes: Int
+	total_photos: Int
+	twitter_username: String
+	updated_at: DateTime
+	username: String
+}
+
+type Unsplash_Photo {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: ID
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	promoted_at: ID
+	sponsorship: Unsplash_Sponsorship
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	width: Int
+}
+
+type Unsplash_User_Photo {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: ID
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	promoted_at: ID
+	sponsorship: ID
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	width: Int
+}
+
+type Unsplash_User_Like {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: String
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	promoted_at: DateTime
+	sponsorship: ID
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	width: Int
+}
+
+type Unsplash_User_Collection {
+	cover_photo: ID
+	curated: Boolean
+	description: ID
+	featured: Boolean
+	id: String
+	last_collected_at: DateTime
+	links: Unsplash_Links
+	preview_photos: ID
+	private: Boolean
+	published_at: DateTime
+	share_key: String
+	tags: JSON
+	title: String
+	total_photos: Int
+	updated_at: DateTime
+	user: Unsplash_User
+}
+
+type Unsplash_Value {
+	date: String
+	value: Int
+}
+
+type Unsplash_Historical {
+	average: Int
+	change: Int
+	quantity: Int
+	resolution: String
+	values: [Unsplash_Value]
+}
+
+type Unsplash_Downloads {
+	historical: Unsplash_Historical
+	total: Int
+}
+
+type Unsplash_Views {
+	historical: Unsplash_Historical
+	total: Int
+}
+
+type Unsplash_User_Statistics {
+	downloads: Unsplash_Downloads
+	id: String
+	username: String
+	views: Unsplash_Views
+}
+
+type Unsplash_Exif {
+	aperture: ID
+	exposure_time: ID
+	focal_length: ID
+	iso: ID
+	make: ID
+	model: ID
+}
+
+type Unsplash_Position {
+	latitude: ID
+	longitude: ID
+}
+
+type Unsplash_Location {
+	city: ID
+	country: ID
+	name: ID
+	position: Unsplash_Position
+	title: ID
+}
+
+type Unsplash_Preview_Photo {
+	blur_hash: String
+	created_at: DateTime
+	id: String
+	updated_at: DateTime
+	urls: Unsplash_Urls
+}
+
+type Unsplash_Result {
+	cover_photo: Unsplash_Cover_Photo
+	curated: Boolean
+	description: ID
+	featured: Boolean
+	id: String
+	last_collected_at: DateTime
+	links: Unsplash_Links
+	preview_photos: [Unsplash_Preview_Photo]
+	private: Boolean
+	published_at: DateTime
+	share_key: String
+	tags: [Unsplash_Tag]
+	title: String
+	total_photos: Int
+	updated_at: DateTime
+	user: Unsplash_User
+}
+
+type Unsplash_Related_Collections {
+	results: [Unsplash_Result]
+	total: Int
+	type: String
+}
+
+type Unsplash_Category {
+	pretty_slug: String
+	slug: String
+}
+
+type Unsplash_Type {
+	pretty_slug: String
+	slug: String
+}
+
+type Unsplash_Source {
+	ancestry: Unsplash_Ancestry
+	cover_photo: Unsplash_Cover_Photo
+	description: String
+	meta_description: String
+	meta_title: String
+	subtitle: String
+	title: String
+}
+
+type Unsplash_Cover_Photo {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: String
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	promoted_at: DateTime
+	sponsorship: String
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	width: Int
+}
+
+type Unsplash_OneTags_Preview {
+	source: Unsplash_Source
+	title: String
+	type: String
+}
+
+type Unsplash_Photo_For_Query {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: ID
+	downloads: Int
+	exif: Unsplash_Exif
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	location: Unsplash_Location
+	meta: Unsplash_Meta
+	promoted_at: ID
+	related_collections: Unsplash_Related_Collections
+	sponsorship: ID
+	tags: [Unsplash_Tag]
+	tags_preview: [Unsplash_OneTags_Preview]
+	topics: JSON
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	views: Int
+	width: Int
+}
+
+type Unsplash_Random_Photo {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: String
+	downloads: Int
+	exif: Unsplash_Exif
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	location: Unsplash_Location
+	promoted_at: DateTime
+	sponsorship: ID
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	views: Int
+	width: Int
+}
+
+type Unsplash_Likes {
+	historical: Unsplash_Historical
+	total: Int
+}
+
+type Unsplash_Photo_Statistics {
+	downloads: Unsplash_Downloads
+	id: String
+	likes: Unsplash_Likes
+	views: Unsplash_Views
+}
+
+type Unsplash_Photo_Download {
+	url: String
+}
+
+type Unsplash_Search {
+	results: JSON
+	total: Int
+	total_pages: Int
+}
+
+type Unsplash_Search_Collections {
+	results: [Unsplash_Result]
+	total: Int
+	total_pages: Int
+}
+
+type Unsplash_Search_Users {
+	results: JSON
+	total: Int
+	total_pages: Int
+}
+
+type Unsplash_Collection {
+	cover_photo: Unsplash_Cover_Photo
+	curated: Boolean
+	description: String
+	featured: Boolean
+	id: String
+	last_collected_at: DateTime
+	links: Unsplash_Links
+	preview_photos: [Unsplash_Preview_Photo]
+	private: Boolean
+	published_at: DateTime
+	share_key: String
+	tags: [Unsplash_Tag]
+	title: String
+	total_photos: Int
+	updated_at: DateTime
+	user: Unsplash_User
+}
+
+type Unsplash_Subcategory {
+	pretty_slug: String
+	slug: String
+}
+
+type Unsplash_Ancestry {
+	category: Unsplash_Category
+	subcategory: Unsplash_Subcategory
+	type: Unsplash_Type
+}
+
+type Unsplash_Tag {
+	source: Unsplash_Source
+	title: String
+	type: String
+}
+
+type Unsplash_Collections_By_Id {
+	cover_photo: Unsplash_Cover_Photo
+	curated: Boolean
+	description: String
+	featured: Boolean
+	id: String
+	last_collected_at: DateTime
+	links: Unsplash_Links
+	meta: Unsplash_Meta
+	preview_photos: [Unsplash_Preview_Photo]
+	private: Boolean
+	published_at: DateTime
+	share_key: String
+	tags: [Unsplash_Tag]
+	title: String
+	total_photos: Int
+	updated_at: DateTime
+	user: Unsplash_User
+}
+
+type Unsplash_One_Unsplash_Collections_By_Id {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: ID
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	promoted_at: DateTime
+	sponsorship: ID
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	width: Int
+}
+
+type Unsplash_One_Unsplash_Related_Collections_By_Id {
+	cover_photo: Unsplash_Cover_Photo
+	curated: Boolean
+	description: ID
+	featured: Boolean
+	id: String
+	last_collected_at: DateTime
+	links: Unsplash_Links
+	preview_photos: [Unsplash_Preview_Photo]
+	private: Boolean
+	published_at: DateTime
+	share_key: String
+	tags: [Unsplash_Tag]
+	title: String
+	total_photos: Int
+	updated_at: DateTime
+	user: Unsplash_User
+}
+
+type Unsplash_Owner {
+	accepted_tos: Boolean
+	bio: String
+	first_name: String
+	for_hire: Boolean
+	id: String
+	instagram_username: String
+	last_name: ID
+	links: Unsplash_Links
+	location: String
+	name: String
+	portfolio_url: String
+	profile_image: Unsplash_Profile_Image
+	social: Unsplash_Social
+	total_collections: Int
+	total_likes: Int
+	total_photos: Int
+	twitter_username: String
+	updated_at: DateTime
+	username: String
+}
+
+type Unsplash_One_Unsplash_Topics {
+	cover_photo: Unsplash_Cover_Photo
+	current_user_contributions: JSON
+	description: String
+	ends_at: ID
+	featured: Boolean
+	id: String
+	links: Unsplash_Links
+	only_submissions_after: ID
+	owners: [Unsplash_Owner]
+	preview_photos: [Unsplash_Preview_Photo]
+	published_at: DateTime
+	slug: String
+	starts_at: DateTime
+	status: String
+	title: String
+	total_current_user_submissions: ID
+	total_photos: Int
+	updated_at: DateTime
+}
+
+type Unsplash_Top_Contributor {
+	accepted_tos: Boolean
+	bio: String
+	first_name: String
+	for_hire: Boolean
+	id: String
+	instagram_username: String
+	last_name: String
+	links: Unsplash_Links
+	location: String
+	name: String
+	portfolio_url: String
+	profile_image: Unsplash_Profile_Image
+	social: Unsplash_Social
+	total_collections: Int
+	total_likes: Int
+	total_photos: Int
+	twitter_username: ID
+	updated_at: DateTime
+	username: String
+}
+
+type Unsplash_Topics_By_Id_Or_Slug {
+	cover_photo: Unsplash_Cover_Photo
+	current_user_contributions: JSON
+	description: String
+	ends_at: ID
+	featured: Boolean
+	id: String
+	links: Unsplash_Links
+	only_submissions_after: ID
+	owners: [Unsplash_Owner]
+	preview_photos: [Unsplash_Preview_Photo]
+	published_at: DateTime
+	slug: String
+	starts_at: DateTime
+	status: String
+	title: String
+	top_contributors: [Unsplash_Top_Contributor]
+	total_current_user_submissions: ID
+	total_photos: Int
+	updated_at: DateTime
+}
+
+type Unsplash_One_Unsplash_Topics_Photos_By_Id_Or_Slug {
+	alt_description: String
+	blur_hash: String
+	categories: JSON
+	color: String
+	created_at: DateTime
+	current_user_collections: JSON
+	description: ID
+	height: Int
+	id: String
+	liked_by_user: Boolean
+	likes: Int
+	links: Unsplash_Links
+	promoted_at: DateTime
+	sponsorship: ID
+	updated_at: DateTime
+	urls: Unsplash_Urls
+	user: Unsplash_User
+	width: Int
+}
+
+type Unsplash_Stats {
+	applications: Int
+	developers: Int
+	downloads: Int
+	downloads_per_second: Int
+	photo_downloads: Int
+	photographers: Int
+	photos: Int
+	pixels: Int
+	requests: Int
+	total_photos: Int
+	views: Int
+	views_per_second: Int
+}
+
+type Unsplash_Stats_Month {
+	downloads: Int
+	new_applications: Int
+	new_developers: Int
+	new_photographers: Int
+	new_photos: Int
+	new_pixels: Int
+	new_requests: Int
+	views: Int
+}
+
+type Query {
+	ipApi_location(ip: String!, lang: String! = "en"): IpApi_Location
+		@rest(
+			endpoint: "http://ip-api.com/json/$ip?fields=64745471&lang=$lang"
+			setters: [{ field: "ip", path: "query" }]
+		)
+	ipApi_stepzen_request: IpApi_StepZen_Request @connector(type: "request")
+	ipApi_location_Auto(lang: String! = "en"): IpApi_Location
+		@sequence(
+			steps: [
+				{ query: "ipApi_stepzen_request" }
+				{
+					query: "ipApi_location"
+					arguments: [{ name: "ip", field: "clientIp" }]
+				}
+			]
+		)
+	openweather_weatherForecast(
+		openweather_appid: Secret!
+		units: Openweather_Units
+		lang: String! = "en"
+		lat: Float!
+		lon: Float!
+	): Openweather_WeatherForecast
+		@rest(
+			endpoint: "https://api.openweathermap.org/data/2.5/onecall?appid=$openweather_appid&lang=$lang&lat=$lat&lon=$lon&exclude=minutely%2Chourly"
+		)
+	spotify_AlbumByIDList(spotify_token: Secret!, ids: String): Spotify_Albums
+		@rest(
+			endpoint: "https://api.spotify.com/v1/albums?ids=$ids"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_AlbumByID(spotify_token: Secret!, id: ID!): Spotify_Album
+		@rest(
+			endpoint: "https://api.spotify.com/v1/albums/$id"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_AlbumTracksByAlbumID(
+		spotify_token: Secret!
+		id: ID!
+	): Spotify_Album_Tracks
+		@rest(
+			endpoint: "https://api.spotify.com/v1/albums/$id/tracks"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_ArtistsByIDList(spotify_token: Secret!, ids: String): Spotify_Artists
+		@rest(
+			endpoint: "https://api.spotify.com/v1/artists?ids=$ids"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_ArtistByID(spotify_token: Secret!, id: ID!): Spotify_Artist
+		@rest(
+			endpoint: "https://api.spotify.com/v1/artists/$id"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_TracksByArtistID(
+		spotify_token: Secret!
+		id: ID
+		market: String
+	): Spotify_Tracks
+		@rest(
+			endpoint: "https://api.spotify.com/v1/artists/$id/top-tracks?market=$market"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_RelatedArtistsByArtistID(
+		spotify_token: Secret!
+		id: ID
+	): Spotify_Related_Artists
+		@rest(
+			endpoint: "https://api.spotify.com/v1/artists/$id/related-artists"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_ArtistAlbumsByID(
+		spotify_token: Secret!
+		id: ID
+	): Spotify_Artist_Albums
+		@rest(
+			endpoint: "https://api.spotify.com/v1/artists/$id/albums"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_NewReleases(spotify_token: Secret!): Spotify_New_Releases
+		@rest(
+			endpoint: "https://api.spotify.com/v1/browse/new-releases"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_FeaturedPlaylists(spotify_token: Secret!): Spotify_Featured_Playlists
+		@rest(
+			endpoint: "https://api.spotify.com/v1/browse/featured-playlists"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_Categories(spotify_token: Secret!): Spotify_Categories
+		@rest(
+			endpoint: "https://api.spotify.com/v1/browse/categories"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_CategoriesByID(
+		spotify_token: Secret!
+		id: ID!
+	): Spotify_Categories_By_Id
+		@rest(
+			endpoint: "https://api.spotify.com/v1/browse/categories/$id"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_Recommendations(
+		spotify_token: Secret!
+		min_acousticness: Int
+		max_liveness: Int
+		target_acousticness: Int
+		min_liveness: Int
+		min_speechiness: Int
+		seed_artists: String
+		target_energy: Int
+		seed_genres: String
+		market: String
+		max_speechiness: Int
+		min_instrumentalness: Int
+		target_instrumentalness: Int
+		min_energy: Int
+		max_instrumentalness: Int
+		max_loudness: Int
+		target_popularity: Int
+		max_acousticness: Int
+		min_popularity: Int
+		target_duration_ms: Int
+		min_danceability: Int
+		max_danceability: Int
+		target_danceability: Int
+		target_speechiness: Int
+		max_popularity: Int
+		min_loudness: Int
+		target_liveness: Int
+		seed_tracks: String
+		max_energy: Int
+		target_loudness: Int
+	): Spotify_Recommendations
+		@rest(
+			endpoint: "https://api.spotify.com/v1/recommendations?market=$market&seed_artists=$seed_artists&seed_genres=$seed_genres&seed_tracks=$seed_tracks&min_acousticness=$min_acousticness&max_acousticness=$max_acousticness&target_acousticness=$target_acousticness&min_danceability=$min_danceability&max_danceability=$max_danceability&target_danceability=$target_danceability&min_energy=$min_energy&max_energy=$max_energy&target_energy=$target_energy&min_instrumentalness=$min_instrumentalness&max_instrumentalness=$max_instrumentalness&target_instrumentalness=$target_instrumentalness&min_liveness=$min_liveness&max_liveness=$max_liveness&target_liveness=$target_liveness&min_loudness=$min_loudness&max_loudness=$max_loudness&target_loudness=$target_loudness&min_popularity=$min_popularity&max_popularity=$max_popularity&target_popularity=$target_popularity&min_speechiness=$min_speechiness&max_speechiness=$max_speechiness&target_speechiness=$target_speechiness&target_duration_ms=$target_duration_ms&min_instrumentalness=$min_instrumentalness"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_Search(spotify_token: Secret!, q: String): [Spotify_Track]
+		@rest(
+			endpoint: "https://api.spotify.com/v1/search?q=$q&type=track"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+			setters: [
+				{ field: "album", path: "tracks.items[].album.name" }
+				{ field: "type", path: "tracks.items[].type" }
+				{ field: "uri", path: "tracks.items[].uri" }
+				{ field: "href", path: "tracks.href" }
+				{ field: "name", path: "tracks.items[].name" }
+				{ field: "is_local", path: "tracks.items[].is_local" }
+				{ field: "popularity", path: "tracks.items[].popularity" }
+				{ field: "disc_number", path: "tracks.items[].disc_number" }
+				{ field: "explicit", path: "tracks.items[].explicit" }
+				{ field: "preview_url", path: "tracks.items[].preview_url" }
+				{ field: "track_number", path: "tracks.items[].track_number" }
+				{ field: "artists", path: "tracks.items[].artists[].name" }
+				{ field: "duration_ms", path: "tracks.items[].duration_ms" }
+				{ field: "external_ids", path: "tracks.items[].external_ids.isrc" }
+				{ field: "external_urls", path: "tracks.items[].external_urls.spotify" }
+				{ field: "id", path: "tracks.items[].id" }
+			]
+		)
+	spotify_PlaylistsForCategory(
+		spotify_token: Secret!
+		country: String
+		limit: Int
+		category_id: ID
+	): Spotify_Playlists_For_Category
+		@rest(
+			endpoint: "https://api.spotify.com/v1/browse/categories/$category_id/playlists?country=$country&limit=$limit"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_ListTracksByIDs(
+		spotify_token: Secret!
+		ids: String
+	): Spotify_Tracks_Get_List
+		@rest(
+			endpoint: "https://api.spotify.com/v1/tracks?ids=$ids"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_TrackByID(spotify_token: Secret!, id: ID!): Spotify_Track
+		@rest(
+			endpoint: "https://api.spotify.com/v1/tracks/$id"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_TrackAudioFeatures(
+		spotify_token: Secret!
+		ids: ID
+	): Spotify_Track_Audio_Features
+		@rest(
+			endpoint: "https://api.spotify.com/v1/audio-features?ids=$ids"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_AudioFeaturesForATrack(
+		spotify_token: Secret!
+		id: ID!
+	): Spotify_Audio_Features_For_A_Track
+		@rest(
+			endpoint: "https://api.spotify.com/v1/audio-features/$id"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	spotify_AudioAnalysisForATrack(
+		spotify_token: Secret!
+		id: ID
+	): Spotify_Audio_Analysis_For_A_Track
+		@rest(
+			endpoint: "https://api.spotify.com/v1/audio-analysis/$id"
+			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+		)
+	unsplash_Users(unsplash_clientId: Secret!, username: String!): Unsplash_Users
+		@rest(
+			endpoint: "https://api.unsplash.com/users/$username"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Users_Portfolio(
+		unsplash_clientId: Secret!
+		username: String!
+	): Unsplash_Users_Portfolio
+		@rest(
+			endpoint: "https://api.unsplash.com/users/$username/portfolio"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Photos(unsplash_clientId: Secret!): [Unsplash_Photo]
+		@rest(
+			endpoint: "https://api.unsplash.com/photos"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_User_Photos(
+		unsplash_clientId: Secret!
+		username: String!
+	): [Unsplash_User_Photo]
+		@rest(
+			endpoint: "https://api.unsplash.com/users/$username/photos"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_User_Likes(
+		unsplash_clientId: Secret!
+		username: String!
+	): [Unsplash_User_Like]
+		@rest(
+			endpoint: "https://api.unsplash.com/users/$username/likes"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_User_Collections(
+		unsplash_clientId: Secret!
+		username: String!
+	): [Unsplash_User_Collection]
+		@rest(
+			endpoint: "https://api.unsplash.com/users/$username/collections"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_User_Statistics(
+		unsplash_clientId: Secret!
+		username: String!
+	): Unsplash_User_Statistics
+		@rest(
+			endpoint: "https://api.unsplash.com/users/$username/statistics"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Photo(
+		unsplash_clientId: Secret!
+		photo_id: String!
+	): Unsplash_Photo_For_Query
+		@rest(
+			endpoint: "https://api.unsplash.com/photos/$photo_id"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Random_Photo(unsplash_clientId: Secret!): Unsplash_Random_Photo
+		@rest(
+			endpoint: "https://api.unsplash.com/photos/random"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Photo_Statistics(
+		unsplash_clientId: Secret!
+		photo_id: String!
+	): Unsplash_Photo_Statistics
+		@rest(
+			endpoint: "https://api.unsplash.com/photos/$photo_id/statistics"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Photo_Download(
+		unsplash_clientId: Secret!
+		photo_id: ID!
+	): Unsplash_Photo_Download
+		@rest(
+			endpoint: "https://api.unsplash.com/photos/$photo_id/download"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Search(
+		unsplash_clientId: Secret!
+		order_by: String
+		collections: String
+		content_filter: String
+		per_page: Int
+		page: Int
+		query: String!
+		orientation: String
+		color: String
+	): Unsplash_Search
+		@rest(
+			endpoint: "https://api.unsplash.com/search/photos"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Search_Collections(
+		unsplash_clientId: Secret!
+		query: String!
+		page: Int
+		per_page: Int
+	): Unsplash_Search_Collections
+		@rest(
+			endpoint: "https://api.unsplash.com/search/collections"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Search_Users(
+		unsplash_clientId: Secret!
+		query: String!
+		page: Int
+		per_page: Int
+	): Unsplash_Search_Users
+		@rest(
+			endpoint: "https://api.unsplash.com/search/users"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Collections(unsplash_clientId: Secret!): [Unsplash_Collection]
+		@rest(
+			endpoint: "https://api.unsplash.com/collections"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Collections_By_Id(
+		unsplash_clientId: Secret!
+		collection_id: String!
+	): Unsplash_Collections_By_Id
+		@rest(
+			endpoint: "https://api.unsplash.com/collections/$collection_id"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Collections_Photos_By_Id(
+		unsplash_clientId: Secret!
+		collection_id: String
+	): [Unsplash_One_Unsplash_Collections_By_Id]
+		@rest(
+			endpoint: "https://api.unsplash.com/collections/$collection_id/photos"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Related_Collections_By_Id(
+		unsplash_clientId: Secret!
+		collection_id: String!
+	): [Unsplash_One_Unsplash_Related_Collections_By_Id]
+		@rest(
+			endpoint: "https://api.unsplash.com/collections/$collection_id/related"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Topics(
+		unsplash_clientId: Secret!
+		page: Int
+		per_page: Int
+		order_by: String
+	): [Unsplash_One_Unsplash_Topics]
+		@rest(
+			endpoint: "https://api.unsplash.com/topics"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Topics_By_Id_Or_Slug(
+		unsplash_clientId: Secret!
+		id_or_slug: String!
+	): Unsplash_Topics_By_Id_Or_Slug
+		@rest(
+			endpoint: "https://api.unsplash.com/topics/$id_or_slug"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Topics_Photos_By_Id_Or_Slug(
+		unsplash_clientId: Secret!
+		id_or_slug: String!
+	): [Unsplash_One_Unsplash_Topics_Photos_By_Id_Or_Slug]
+		@rest(
+			endpoint: "https://api.unsplash.com/topics/$id_or_slug/photos"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Stats(unsplash_clientId: Secret!): Unsplash_Stats
+		@rest(
+			endpoint: "https://api.unsplash.com/stats/total"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+	unsplash_Stats_Month(unsplash_clientId: Secret!): Unsplash_Stats_Month
+		@rest(
+			endpoint: "https://api.unsplash.com/stats/month"
+			headers: [
+				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+			]
+		)
+}
