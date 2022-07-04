@@ -1,4 +1,3 @@
-#use @materializer and @sequence directive to stich together the different apis after one another
 
 
 schema {
@@ -66,6 +65,16 @@ type Openweather_Weather {
 				{ name: "q", field: "description" }
 			]
 		)
+
+    weather_mood_image(unsplash_clientId: Secret!): Unsplash_Search
+        @materializer(
+            query: "unsplash_Search"
+
+            arguments: [
+                { name: "unsplash_clientId", argument: "unsplash_clientId" }
+                { name: "query", field: "description" }
+            ]
+        )
 
 
 }
