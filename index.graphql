@@ -16,8 +16,9 @@ type Query {
 		)
 }
 
+
 # type Query {
-# 	spotify_search_sequence(q: String!): Spotify_Track
+# 	spotify_Search_Sequence(q: String!): Spotify_Track
 # 		@sequence(
 # 			steps: [
 # 				{ query: "get_auth" }
@@ -25,6 +26,9 @@ type Query {
 # 			]
 # 		)
 # }
+
+
+
 
 type IpApi_Location {
 	status: String
@@ -52,13 +56,13 @@ type IpApi_Location {
 	hosting: Boolean
 	ip: String
 	weather(
-		openweather_appid: Secret!
+		# openweather_appid: Secret!
 		units: Openweather_Units
 	): Openweather_WeatherForecast
 		@materializer(
 			query: "openweather_weatherForecast"
 			arguments: [
-				{ name: "openweather_appid", argument: "openweather_appid" }
+				# { name: "openweather_appid", argument: "openweather_appid" }
 				{ name: "units", argument: "units" }
 				{ name: "lang", field: "countryCode" }
 				{ name: "lat", field: "lat" }
@@ -78,6 +82,7 @@ type Openweather_Weather {
 	main: String
 
 	weather_mood_music(spotify_token: Secret!): [Spotify_Track]
+		
 		@materializer(
 			query: "spotify_Search"
 
@@ -87,12 +92,12 @@ type Openweather_Weather {
 			]
 		)
 
-	weather_mood_image(unsplash_clientId: Secret!): Unsplash_Search
+	weather_mood_image: Unsplash_Search
 		@materializer(
 			query: "unsplash_Search"
 
 			arguments: [
-				{ name: "unsplash_clientId", argument: "unsplash_clientId" }
+				# { name: "unsplash_clientId", argument: "unsplash_clientId" }
 				{ name: "query", field: "description" }
 			]
 		)
@@ -1596,91 +1601,92 @@ type Query {
 			]
 		)
 	openweather_weatherForecast(
-		openweather_appid: Secret!
+		# openweather_appid: Secret!
 		units: Openweather_Units
 		lang: String! = "en"
 		lat: Float!
 		lon: Float!
 	): Openweather_WeatherForecast
 		@rest(
-			endpoint: "https://api.openweathermap.org/data/2.5/onecall?appid=$openweather_appid&lang=$lang&lat=$lat&lon=$lon&exclude=minutely%2Chourly"
+			endpoint: "https://api.openweathermap.org/data/2.5/onecall?appid=$openweather_api_key&lang=$lang&lat=$lat&lon=$lon&exclude=minutely%2Chourly"
+			configuration: "openweather_api_key"
 		)
-	spotify_AlbumByIDList(spotify_token: Secret!, ids: String): Spotify_Albums
-		@rest(
-			endpoint: "https://api.spotify.com/v1/albums?ids=$ids"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_AlbumByID(spotify_token: Secret!, id: ID!): Spotify_Album
-		@rest(
-			endpoint: "https://api.spotify.com/v1/albums/$id"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_AlbumTracksByAlbumID(
-		spotify_token: Secret!
-		id: ID!
-	): Spotify_Album_Tracks
-		@rest(
-			endpoint: "https://api.spotify.com/v1/albums/$id/tracks"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_ArtistsByIDList(spotify_token: Secret!, ids: String): Spotify_Artists
-		@rest(
-			endpoint: "https://api.spotify.com/v1/artists?ids=$ids"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_ArtistByID(spotify_token: Secret!, id: ID!): Spotify_Artist
-		@rest(
-			endpoint: "https://api.spotify.com/v1/artists/$id"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_TracksByArtistID(
-		spotify_token: Secret!
-		id: ID
-		market: String
-	): Spotify_Tracks
-		@rest(
-			endpoint: "https://api.spotify.com/v1/artists/$id/top-tracks?market=$market"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_RelatedArtistsByArtistID(
-		spotify_token: Secret!
-		id: ID
-	): Spotify_Related_Artists
-		@rest(
-			endpoint: "https://api.spotify.com/v1/artists/$id/related-artists"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_ArtistAlbumsByID(
-		spotify_token: Secret!
-		id: ID
-	): Spotify_Artist_Albums
-		@rest(
-			endpoint: "https://api.spotify.com/v1/artists/$id/albums"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_NewReleases(spotify_token: Secret!): Spotify_New_Releases
-		@rest(
-			endpoint: "https://api.spotify.com/v1/browse/new-releases"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_FeaturedPlaylists(spotify_token: Secret!): Spotify_Featured_Playlists
-		@rest(
-			endpoint: "https://api.spotify.com/v1/browse/featured-playlists"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_Categories(spotify_token: Secret!): Spotify_Categories
-		@rest(
-			endpoint: "https://api.spotify.com/v1/browse/categories"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_CategoriesByID(
-		spotify_token: Secret!
-		id: ID!
-	): Spotify_Categories_By_Id
-		@rest(
-			endpoint: "https://api.spotify.com/v1/browse/categories/$id"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
+	# spotify_AlbumByIDList(spotify_token: Secret!, ids: String): Spotify_Albums
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/albums?ids=$ids"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_AlbumByID(spotify_token: Secret!, id: ID!): Spotify_Album
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/albums/$id"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_AlbumTracksByAlbumID(
+	# 	spotify_token: Secret!
+	# 	id: ID!
+	# ): Spotify_Album_Tracks
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/albums/$id/tracks"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_ArtistsByIDList(spotify_token: Secret!, ids: String): Spotify_Artists
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/artists?ids=$ids"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_ArtistByID(spotify_token: Secret!, id: ID!): Spotify_Artist
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/artists/$id"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_TracksByArtistID(
+	# 	spotify_token: Secret!
+	# 	id: ID
+	# 	market: String
+	# ): Spotify_Tracks
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/artists/$id/top-tracks?market=$market"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_RelatedArtistsByArtistID(
+	# 	spotify_token: Secret!
+	# 	id: ID
+	# ): Spotify_Related_Artists
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/artists/$id/related-artists"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_ArtistAlbumsByID(
+	# 	spotify_token: Secret!
+	# 	id: ID
+	# ): Spotify_Artist_Albums
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/artists/$id/albums"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_NewReleases(spotify_token: Secret!): Spotify_New_Releases
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/browse/new-releases"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_FeaturedPlaylists(spotify_token: Secret!): Spotify_Featured_Playlists
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/browse/featured-playlists"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_Categories(spotify_token: Secret!): Spotify_Categories
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/browse/categories"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_CategoriesByID(
+	# 	spotify_token: Secret!
+	# 	id: ID!
+	# ): Spotify_Categories_By_Id
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/browse/categories/$id"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
 	spotify_Recommendations(
 		spotify_token: Secret!
 		min_acousticness: Int
@@ -1740,156 +1746,156 @@ type Query {
 				{ field: "id", path: "tracks.items[].id" }
 			]
 		)
-	spotify_PlaylistsForCategory(
-		spotify_token: Secret!
-		country: String
-		limit: Int
-		category_id: ID
-	): Spotify_Playlists_For_Category
-		@rest(
-			endpoint: "https://api.spotify.com/v1/browse/categories/$category_id/playlists?country=$country&limit=$limit"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_ListTracksByIDs(
-		spotify_token: Secret!
-		ids: String
-	): Spotify_Tracks_Get_List
-		@rest(
-			endpoint: "https://api.spotify.com/v1/tracks?ids=$ids"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_TrackByID(spotify_token: Secret!, id: ID!): Spotify_Track
-		@rest(
-			endpoint: "https://api.spotify.com/v1/tracks/$id"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_TrackAudioFeatures(
-		spotify_token: Secret!
-		ids: ID
-	): Spotify_Track_Audio_Features
-		@rest(
-			endpoint: "https://api.spotify.com/v1/audio-features?ids=$ids"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_AudioFeaturesForATrack(
-		spotify_token: Secret!
-		id: ID!
-	): Spotify_Audio_Features_For_A_Track
-		@rest(
-			endpoint: "https://api.spotify.com/v1/audio-features/$id"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_AudioAnalysisForATrack(
-		spotify_token: Secret!
-		id: ID
-	): Spotify_Audio_Analysis_For_A_Track
-		@rest(
-			endpoint: "https://api.spotify.com/v1/audio-analysis/$id"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	unsplash_Users(unsplash_clientId: Secret!, username: String!): Unsplash_Users
-		@rest(
-			endpoint: "https://api.unsplash.com/users/$username"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Users_Portfolio(
-		unsplash_clientId: Secret!
-		username: String!
-	): Unsplash_Users_Portfolio
-		@rest(
-			endpoint: "https://api.unsplash.com/users/$username/portfolio"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Photos(unsplash_clientId: Secret!): [Unsplash_Photo]
-		@rest(
-			endpoint: "https://api.unsplash.com/photos"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_User_Photos(
-		unsplash_clientId: Secret!
-		username: String!
-	): [Unsplash_User_Photo]
-		@rest(
-			endpoint: "https://api.unsplash.com/users/$username/photos"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_User_Likes(
-		unsplash_clientId: Secret!
-		username: String!
-	): [Unsplash_User_Like]
-		@rest(
-			endpoint: "https://api.unsplash.com/users/$username/likes"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_User_Collections(
-		unsplash_clientId: Secret!
-		username: String!
-	): [Unsplash_User_Collection]
-		@rest(
-			endpoint: "https://api.unsplash.com/users/$username/collections"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_User_Statistics(
-		unsplash_clientId: Secret!
-		username: String!
-	): Unsplash_User_Statistics
-		@rest(
-			endpoint: "https://api.unsplash.com/users/$username/statistics"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Photo(
-		unsplash_clientId: Secret!
-		photo_id: String!
-	): Unsplash_Photo_For_Query
-		@rest(
-			endpoint: "https://api.unsplash.com/photos/$photo_id"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Random_Photo(unsplash_clientId: Secret!): Unsplash_Random_Photo
-		@rest(
-			endpoint: "https://api.unsplash.com/photos/random"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Photo_Statistics(
-		unsplash_clientId: Secret!
-		photo_id: String!
-	): Unsplash_Photo_Statistics
-		@rest(
-			endpoint: "https://api.unsplash.com/photos/$photo_id/statistics"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Photo_Download(
-		unsplash_clientId: Secret!
-		photo_id: ID!
-	): Unsplash_Photo_Download
-		@rest(
-			endpoint: "https://api.unsplash.com/photos/$photo_id/download"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
+	# spotify_PlaylistsForCategory(
+	# 	spotify_token: Secret!
+	# 	country: String
+	# 	limit: Int
+	# 	category_id: ID
+	# ): Spotify_Playlists_For_Category
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/browse/categories/$category_id/playlists?country=$country&limit=$limit"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_ListTracksByIDs(
+	# 	spotify_token: Secret!
+	# 	ids: String
+	# ): Spotify_Tracks_Get_List
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/tracks?ids=$ids"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_TrackByID(spotify_token: Secret!, id: ID!): Spotify_Track
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/tracks/$id"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_TrackAudioFeatures(
+	# 	spotify_token: Secret!
+	# 	ids: ID
+	# ): Spotify_Track_Audio_Features
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/audio-features?ids=$ids"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_AudioFeaturesForATrack(
+	# 	spotify_token: Secret!
+	# 	id: ID!
+	# ): Spotify_Audio_Features_For_A_Track
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/audio-features/$id"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# 	)
+	# spotify_AudioAnalysisForATrack(
+	# 	spotify_token: Secret!
+	# 	id: ID
+	# ): Spotify_Audio_Analysis_For_A_Track
+	# 	@rest(
+	# 		endpoint: "https://api.spotify.com/v1/audio-analysis/$id"
+	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+	# )
+	# unsplash_Users(unsplash_clientId: Secret!, username: String!): Unsplash_Users
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/users/$username"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Users_Portfolio(
+	# 	unsplash_clientId: Secret!
+	# 	username: String!
+	# ): Unsplash_Users_Portfolio
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/users/$username/portfolio"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Photos(unsplash_clientId: Secret!): [Unsplash_Photo]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/photos"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_User_Photos(
+	# 	unsplash_clientId: Secret!
+	# 	username: String!
+	# ): [Unsplash_User_Photo]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/users/$username/photos"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_User_Likes(
+	# 	unsplash_clientId: Secret!
+	# 	username: String!
+	# ): [Unsplash_User_Like]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/users/$username/likes"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_User_Collections(
+	# 	unsplash_clientId: Secret!
+	# 	username: String!
+	# ): [Unsplash_User_Collection]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/users/$username/collections"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_User_Statistics(
+	# 	unsplash_clientId: Secret!
+	# 	username: String!
+	# ): Unsplash_User_Statistics
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/users/$username/statistics"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Photo(
+	# 	unsplash_clientId: Secret!
+	# 	photo_id: String!
+	# ): Unsplash_Photo_For_Query
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/photos/$photo_id"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Random_Photo(unsplash_clientId: Secret!): Unsplash_Random_Photo
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/photos/random"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Photo_Statistics(
+	# 	unsplash_clientId: Secret!
+	# 	photo_id: String!
+	# ): Unsplash_Photo_Statistics
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/photos/$photo_id/statistics"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Photo_Download(
+	# 	unsplash_clientId: Secret!
+	# 	photo_id: ID!
+	# ): Unsplash_Photo_Download
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/photos/$photo_id/download"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
 	unsplash_Search(
-		unsplash_clientId: Secret!
+		# unsplash_clientId: Secret!
 		order_by: String
 		collections: String
 		content_filter: String
@@ -1904,7 +1910,7 @@ type Query {
 			headers: [
 				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
 			]
-			# configuration: "unsplash_api_key"
+			configuration: "unsplash_api_key"
 		)
 	# unsplash_Search_Collections(
 	# 	unsplash_clientId: Secret!
