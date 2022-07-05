@@ -17,15 +17,15 @@ type Query {
 }
 
 
-# type Query {
-# 	spotify_Search_Sequence(q: String!): Spotify_Track
-# 		@sequence(
-# 			steps: [
-# 				{ query: "get_auth" }
-# 				{ query: "spotify_Search", arguments: [{ name: "q", argument: "q" }] }
-# 			]
-# 		)
-# }
+type Query {
+	spotify_Search_Sequence(q: String!): [Spotify_Track]
+		@sequence(
+			steps: [
+				{ query: "get_auth" }
+				{ query: "spotify_Search", arguments: [{ name: "q", argument: "q" }] }
+			]
+		)
+}
 
 
 
@@ -81,16 +81,16 @@ type Openweather_Weather {
 	id: Int
 	main: String
 
-	weather_mood_music(spotify_token: Secret!): [Spotify_Track]
-		
-		@materializer(
-			query: "spotify_Search"
 
-			arguments: [
-				{ name: "spotify_token", argument: "spotify_token" }
-				{ name: "q", field: "description" }
-			]
-		)
+
+	weather_mood_music:[Spotify_Track]
+	@materializer(
+		query: "spotify_Search_Sequence"
+		arguments: [
+			# { name: "spotify_token", argument: "spotify_token" }
+			{ name: "q", field: "description" }
+		]
+	)
 
 	weather_mood_image: Unsplash_Search
 		@materializer(
@@ -1723,10 +1723,10 @@ type Query {
 			endpoint: "https://api.spotify.com/v1/recommendations?market=$market&seed_artists=$seed_artists&seed_genres=$seed_genres&seed_tracks=$seed_tracks&min_acousticness=$min_acousticness&max_acousticness=$max_acousticness&target_acousticness=$target_acousticness&min_danceability=$min_danceability&max_danceability=$max_danceability&target_danceability=$target_danceability&min_energy=$min_energy&max_energy=$max_energy&target_energy=$target_energy&min_instrumentalness=$min_instrumentalness&max_instrumentalness=$max_instrumentalness&target_instrumentalness=$target_instrumentalness&min_liveness=$min_liveness&max_liveness=$max_liveness&target_liveness=$target_liveness&min_loudness=$min_loudness&max_loudness=$max_loudness&target_loudness=$target_loudness&min_popularity=$min_popularity&max_popularity=$max_popularity&target_popularity=$target_popularity&min_speechiness=$min_speechiness&max_speechiness=$max_speechiness&target_speechiness=$target_speechiness&target_duration_ms=$target_duration_ms&min_instrumentalness=$min_instrumentalness"
 			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
 		)
-	spotify_Search(spotify_token: Secret!, q: String): [Spotify_Track]
+	spotify_Search(access_token:String!, q: String): [Spotify_Track]
 		@rest(
 			endpoint: "https://api.spotify.com/v1/search?q=$q&type=track"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
+			headers: [{ name: "Authorization", value: "Bearer $access_token" }]
 			setters: [
 				{ field: "album", path: "tracks.items[].album.name" }
 				{ field: "type", path: "tracks.items[].type" }
