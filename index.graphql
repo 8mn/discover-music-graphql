@@ -1,8 +1,30 @@
-
-
 schema {
 	query: Query
 }
+
+type Spotify_Auth {
+	access_token: String!
+}
+
+type Query {
+	get_auth: Spotify_Auth
+		@rest(
+			method: POST
+			contenttype: "application/x-www-form-urlencoded"
+			endpoint: "https://accounts.spotify.com/api/token?grant_type=client_credentials&client_id=$client_id&client_secret=$client_secret"
+			configuration: "spotify_config"
+		)
+}
+
+# type Query {
+# 	spotify_search_sequence(q: String!): Spotify_Track
+# 		@sequence(
+# 			steps: [
+# 				{ query: "get_auth" }
+# 				{ query: "spotify_Search", arguments: [{ name: "q", argument: "q" }] }
+# 			]
+# 		)
+# }
 
 type IpApi_Location {
 	status: String
@@ -39,9 +61,8 @@ type IpApi_Location {
 				{ name: "openweather_appid", argument: "openweather_appid" }
 				{ name: "units", argument: "units" }
 				{ name: "lang", field: "countryCode" }
-
-                { name: "lat", field: "lat" }
-                { name: "lon", field: "lon" }
+				{ name: "lat", field: "lat" }
+				{ name: "lon", field: "lon" }
 			]
 		)
 }
@@ -66,17 +87,15 @@ type Openweather_Weather {
 			]
 		)
 
-    weather_mood_image(unsplash_clientId: Secret!): Unsplash_Search
-        @materializer(
-            query: "unsplash_Search"
+	weather_mood_image(unsplash_clientId: Secret!): Unsplash_Search
+		@materializer(
+			query: "unsplash_Search"
 
-            arguments: [
-                { name: "unsplash_clientId", argument: "unsplash_clientId" }
-                { name: "query", field: "description" }
-            ]
-        )
-
-
+			arguments: [
+				{ name: "unsplash_clientId", argument: "unsplash_clientId" }
+				{ name: "query", field: "description" }
+			]
+		)
 }
 
 type Openweather_Current {
@@ -1885,112 +1904,113 @@ type Query {
 			headers: [
 				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
 			]
+			# configuration: "unsplash_api_key"
 		)
-	unsplash_Search_Collections(
-		unsplash_clientId: Secret!
-		query: String!
-		page: Int
-		per_page: Int
-	): Unsplash_Search_Collections
-		@rest(
-			endpoint: "https://api.unsplash.com/search/collections"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Search_Users(
-		unsplash_clientId: Secret!
-		query: String!
-		page: Int
-		per_page: Int
-	): Unsplash_Search_Users
-		@rest(
-			endpoint: "https://api.unsplash.com/search/users"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Collections(unsplash_clientId: Secret!): [Unsplash_Collection]
-		@rest(
-			endpoint: "https://api.unsplash.com/collections"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Collections_By_Id(
-		unsplash_clientId: Secret!
-		collection_id: String!
-	): Unsplash_Collections_By_Id
-		@rest(
-			endpoint: "https://api.unsplash.com/collections/$collection_id"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Collections_Photos_By_Id(
-		unsplash_clientId: Secret!
-		collection_id: String
-	): [Unsplash_One_Unsplash_Collections_By_Id]
-		@rest(
-			endpoint: "https://api.unsplash.com/collections/$collection_id/photos"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Related_Collections_By_Id(
-		unsplash_clientId: Secret!
-		collection_id: String!
-	): [Unsplash_One_Unsplash_Related_Collections_By_Id]
-		@rest(
-			endpoint: "https://api.unsplash.com/collections/$collection_id/related"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Topics(
-		unsplash_clientId: Secret!
-		page: Int
-		per_page: Int
-		order_by: String
-	): [Unsplash_One_Unsplash_Topics]
-		@rest(
-			endpoint: "https://api.unsplash.com/topics"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Topics_By_Id_Or_Slug(
-		unsplash_clientId: Secret!
-		id_or_slug: String!
-	): Unsplash_Topics_By_Id_Or_Slug
-		@rest(
-			endpoint: "https://api.unsplash.com/topics/$id_or_slug"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Topics_Photos_By_Id_Or_Slug(
-		unsplash_clientId: Secret!
-		id_or_slug: String!
-	): [Unsplash_One_Unsplash_Topics_Photos_By_Id_Or_Slug]
-		@rest(
-			endpoint: "https://api.unsplash.com/topics/$id_or_slug/photos"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Stats(unsplash_clientId: Secret!): Unsplash_Stats
-		@rest(
-			endpoint: "https://api.unsplash.com/stats/total"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
-	unsplash_Stats_Month(unsplash_clientId: Secret!): Unsplash_Stats_Month
-		@rest(
-			endpoint: "https://api.unsplash.com/stats/month"
-			headers: [
-				{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
-			]
-		)
+	# unsplash_Search_Collections(
+	# 	unsplash_clientId: Secret!
+	# 	query: String!
+	# 	page: Int
+	# 	per_page: Int
+	# ): Unsplash_Search_Collections
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/search/collections"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Search_Users(
+	# 	unsplash_clientId: Secret!
+	# 	query: String!
+	# 	page: Int
+	# 	per_page: Int
+	# ): Unsplash_Search_Users
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/search/users"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Collections(unsplash_clientId: Secret!): [Unsplash_Collection]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/collections"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Collections_By_Id(
+	# 	unsplash_clientId: Secret!
+	# 	collection_id: String!
+	# ): Unsplash_Collections_By_Id
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/collections/$collection_id"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Collections_Photos_By_Id(
+	# 	unsplash_clientId: Secret!
+	# 	collection_id: String
+	# ): [Unsplash_One_Unsplash_Collections_By_Id]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/collections/$collection_id/photos"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Related_Collections_By_Id(
+	# 	unsplash_clientId: Secret!
+	# 	collection_id: String!
+	# ): [Unsplash_One_Unsplash_Related_Collections_By_Id]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/collections/$collection_id/related"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Topics(
+	# 	unsplash_clientId: Secret!
+	# 	page: Int
+	# 	per_page: Int
+	# 	order_by: String
+	# ): [Unsplash_One_Unsplash_Topics]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/topics"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Topics_By_Id_Or_Slug(
+	# 	unsplash_clientId: Secret!
+	# 	id_or_slug: String!
+	# ): Unsplash_Topics_By_Id_Or_Slug
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/topics/$id_or_slug"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Topics_Photos_By_Id_Or_Slug(
+	# 	unsplash_clientId: Secret!
+	# 	id_or_slug: String!
+	# ): [Unsplash_One_Unsplash_Topics_Photos_By_Id_Or_Slug]
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/topics/$id_or_slug/photos"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Stats(unsplash_clientId: Secret!): Unsplash_Stats
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/stats/total"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
+	# unsplash_Stats_Month(unsplash_clientId: Secret!): Unsplash_Stats_Month
+	# 	@rest(
+	# 		endpoint: "https://api.unsplash.com/stats/month"
+	# 		headers: [
+	# 			{ name: "Authorization", value: "Client-ID $unsplash_clientId" }
+	# 		]
+	# 	)
 }
