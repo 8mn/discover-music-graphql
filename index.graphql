@@ -16,19 +16,47 @@ type Query {
 		)
 }
 
-
 type Query {
-	spotify_Search_Sequence(q: String!): [Spotify_Track]
+	spotify_Search_Sequence(q: String!, limit: Int, offset: Int): [Spotify_Track]
 		@sequence(
 			steps: [
 				{ query: "get_auth" }
-				{ query: "spotify_Search", arguments: [{ name: "q", argument: "q" }] }
+				{
+					query: "spotify_Search"
+					arguments: [
+						{ name: "q", argument: "q" }
+						{ name: "limit", argument: "limit" }
+						{ name: "offset", argument: "offset" }
+					]
+				}
 			]
 		)
 }
 
-
-
+type Query {
+	spotify_Recommendation_Sequence(
+		seed_tracks: String!,
+		# limit: Int,
+		seed_genres: String!,
+		seed_artists: String!,
+		market: String!
+	): Spotify_Recommendations
+		@sequence(
+			steps: [
+				{ query: "get_auth" }
+				{
+					query: "spotify_Recommendations"
+					arguments: [
+						{ name: "seed_tracks", argument: "seed_tracks" }
+						{ name: "seed_genres", argument: "seed_genres" }
+						{ name: "seed_artists", argument: "seed_artists" }
+						# { name: "limit", argument: "limit" }
+						{ name: "market", argument: "market" }
+					]
+				}
+			]
+		)
+}
 
 type IpApi_Location {
 	status: String
@@ -81,16 +109,16 @@ type Openweather_Weather {
 	id: Int
 	main: String
 
-
-
-	weather_mood_music:[Spotify_Track]
-	@materializer(
-		query: "spotify_Search_Sequence"
-		arguments: [
-			# { name: "spotify_token", argument: "spotify_token" }
-			{ name: "q", field: "description" }
-		]
-	)
+	weather_mood_music(limit: Int, offset: Int): [Spotify_Track]
+		@materializer(
+			query: "spotify_Search_Sequence"
+			arguments: [
+				# { name: "spotify_token", argument: "spotify_token" }
+				{ name: "q", field: "description" }
+				{ name: "limit", argument: "limit" }
+				{ name: "offset", argument: "offset" }
+			]
+		)
 
 	weather_mood_image: Unsplash_Search
 		@materializer(
@@ -645,7 +673,7 @@ type Spotify_Recommendations_Seed {
 }
 
 type Spotify_Recommendations {
-	seeds: [Spotify_Recommendations_Seed]
+	# seeds: [Spotify_Recommendations_Seed]
 	tracks: JSON
 }
 
@@ -781,6 +809,8 @@ type Spotify_Track {
 	track_number: Int
 	type: String
 	uri: String
+
+	images: [Spotify_Image]
 }
 
 type Spotify_Get_Audio_Features_For_List_Of_Tracks_Audio_Feature {
@@ -1687,45 +1717,55 @@ type Query {
 	# 		endpoint: "https://api.spotify.com/v1/browse/categories/$id"
 	# 		headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
 	# 	)
-	spotify_Recommendations(
-		spotify_token: Secret!
-		min_acousticness: Int
-		max_liveness: Int
-		target_acousticness: Int
-		min_liveness: Int
-		min_speechiness: Int
-		seed_artists: String
-		target_energy: Int
-		seed_genres: String
-		market: String
-		max_speechiness: Int
-		min_instrumentalness: Int
-		target_instrumentalness: Int
-		min_energy: Int
-		max_instrumentalness: Int
-		max_loudness: Int
-		target_popularity: Int
-		max_acousticness: Int
-		min_popularity: Int
-		target_duration_ms: Int
-		min_danceability: Int
-		max_danceability: Int
-		target_danceability: Int
-		target_speechiness: Int
-		max_popularity: Int
-		min_loudness: Int
-		target_liveness: Int
-		seed_tracks: String
-		max_energy: Int
-		target_loudness: Int
-	): Spotify_Recommendations
+
+
+	  spotify_Recommendations(
+    access_token: String!
+    # min_acousticness: Int
+    # max_liveness: Int
+    # target_acousticness: Int
+    # min_liveness: Int
+    # min_speechiness: Int
+    seed_artists: String!
+    # target_energy: Int
+    seed_genres: String!
+    market: String
+    # max_speechiness: Int
+    # min_instrumentalness: Int
+    # target_instrumentalness: Int
+    # min_energy: Int
+    # max_instrumentalness: Int
+    # max_loudness: Int
+    # target_popularity: Int
+    # max_acousticness: Int
+    # min_popularity: Int
+    # target_duration_ms: Int
+    # min_danceability: Int
+    # max_danceability: Int
+    # target_danceability: Int
+    # target_speechiness: Int
+    # max_popularity: Int
+    # min_loudness: Int
+    # target_liveness: Int
+    seed_tracks: String!
+    # max_energy: Int
+    # target_loudness: Int
+	# limit: Int
+  ): Spotify_Recommendations
+    @rest(
+      endpoint: "https://api.spotify.com/v1/recommendations?&market=$market&seed_artists=$seed_artists&seed_genres=$seed_genres&seed_tracks=$seed_tracks"
+      headers: [{ name: "Authorization", value: "Bearer $access_token" }]
+    )
+
+
+	spotify_Search(
+		access_token: String!
+		q: String
+		limit: Int
+		offset: Int
+	): [Spotify_Track]
 		@rest(
-			endpoint: "https://api.spotify.com/v1/recommendations?market=$market&seed_artists=$seed_artists&seed_genres=$seed_genres&seed_tracks=$seed_tracks&min_acousticness=$min_acousticness&max_acousticness=$max_acousticness&target_acousticness=$target_acousticness&min_danceability=$min_danceability&max_danceability=$max_danceability&target_danceability=$target_danceability&min_energy=$min_energy&max_energy=$max_energy&target_energy=$target_energy&min_instrumentalness=$min_instrumentalness&max_instrumentalness=$max_instrumentalness&target_instrumentalness=$target_instrumentalness&min_liveness=$min_liveness&max_liveness=$max_liveness&target_liveness=$target_liveness&min_loudness=$min_loudness&max_loudness=$max_loudness&target_loudness=$target_loudness&min_popularity=$min_popularity&max_popularity=$max_popularity&target_popularity=$target_popularity&min_speechiness=$min_speechiness&max_speechiness=$max_speechiness&target_speechiness=$target_speechiness&target_duration_ms=$target_duration_ms&min_instrumentalness=$min_instrumentalness"
-			headers: [{ name: "Authorization", value: "Bearer $spotify_token" }]
-		)
-	spotify_Search(access_token:String!, q: String): [Spotify_Track]
-		@rest(
-			endpoint: "https://api.spotify.com/v1/search?q=$q&type=track"
+			endpoint: "https://api.spotify.com/v1/search?q=$q&type=track&limit=$limit&offset=$offset"
 			headers: [{ name: "Authorization", value: "Bearer $access_token" }]
 			setters: [
 				{ field: "album", path: "tracks.items[].album.name" }
@@ -1744,6 +1784,8 @@ type Query {
 				{ field: "external_ids", path: "tracks.items[].external_ids.isrc" }
 				{ field: "external_urls", path: "tracks.items[].external_urls.spotify" }
 				{ field: "id", path: "tracks.items[].id" }
+				{ field: "images", path: "tracks.items[].album.images" }
+				# {field: "url", path: "tracks.items[].images[].url"}
 			]
 		)
 	# spotify_PlaylistsForCategory(
