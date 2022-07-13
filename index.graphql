@@ -17,6 +17,23 @@ type Query {
 }
 
 
+type Query {
+	spotify_Search_Sequence(q: String!, limit: Int, offset: Int): [Spotify_Track]
+		@sequence(
+			steps: [
+				{ query: "get_auth" }
+				{
+					query: "spotify_Search"
+					arguments: [
+						{ name: "q", argument: "q" }
+						{ name: "limit", argument: "limit" }
+						{ name: "offset", argument: "offset" }
+					]
+				}
+			]
+		)
+}
+
 
 type Query {
 	spotify_Recommendation_Sequence(
@@ -44,10 +61,6 @@ type Query {
 }
 
 
-
-type spotify_Available_markets {
-	markets: JSON
-}
 
 type Query {
 	spotify_Available_Markets_Sequence: spotify_Available_markets
@@ -89,6 +102,101 @@ type Query {
 			endpoint: "https://api.spotify.com/v1/recommendations/available-genre-seeds"
 			headers: [{ name: "Authorization", value: "Bearer $access_token" }]
 		)
+}
+
+
+
+type Query {
+	ipApi_location(ip: String!, lang: String! = "en"): IpApi_Location
+		@rest(
+			endpoint: "http://ip-api.com/json/$ip?fields=64745471&lang=$lang"
+			setters: [{ field: "ip", path: "query" }]
+		)
+	ipApi_stepzen_request: IpApi_StepZen_Request @connector(type: "request")
+	ipApi_location_Auto(lang: String! = "en"): IpApi_Location
+		@sequence(
+			steps: [
+				{ query: "ipApi_stepzen_request" }
+				{
+					query: "ipApi_location"
+					arguments: [{ name: "ip", field: "clientIp" }]
+				}
+			]
+		)
+
+	spotify_Recommendations(
+		access_token: String!
+		# min_acousticness: Int
+		# max_liveness: Int
+		# target_acousticness: Int
+		# min_liveness: Int
+		# min_speechiness: Int
+		seed_artists: String!
+		# target_energy: Int
+		seed_genres: String!
+		market: String
+		# max_speechiness: Int
+		# min_instrumentalness: Int
+		# target_instrumentalness: Int
+		# min_energy: Int
+		# max_instrumentalness: Int
+		# max_loudness: Int
+		# target_popularity: Int
+		# max_acousticness: Int
+		# min_popularity: Int
+		# target_duration_ms: Int
+		# min_danceability: Int
+		# max_danceability: Int
+		# target_danceability: Int
+		# target_speechiness: Int
+		# max_popularity: Int
+		# min_loudness: Int
+		# target_liveness: Int
+		seed_tracks: String!
+	): # max_energy: Int
+	# target_loudness: Int
+	# limit: Int
+	Spotify_Recommendations
+		@rest(
+			endpoint: "https://api.spotify.com/v1/recommendations?limit=30&market=$market&seed_artists=$seed_artists&seed_genres=$seed_genres&seed_tracks=$seed_tracks"
+			headers: [{ name: "Authorization", value: "Bearer $access_token" }]
+		)
+
+	spotify_Search(
+		access_token: String!
+		q: String
+		limit: Int
+		offset: Int
+	): [Spotify_Track]
+		@rest(
+			endpoint: "https://api.spotify.com/v1/search?q=$q&type=track&limit=$limit&offset=$offset"
+			headers: [{ name: "Authorization", value: "Bearer $access_token" }]
+			setters: [
+				{ field: "album", path: "tracks.items[].album.name" }
+				{ field: "type", path: "tracks.items[].type" }
+				{ field: "uri", path: "tracks.items[].uri" }
+				{ field: "href", path: "tracks.href" }
+				{ field: "name", path: "tracks.items[].name" }
+				{ field: "is_local", path: "tracks.items[].is_local" }
+				{ field: "popularity", path: "tracks.items[].popularity" }
+				{ field: "disc_number", path: "tracks.items[].disc_number" }
+				{ field: "explicit", path: "tracks.items[].explicit" }
+				{ field: "preview_url", path: "tracks.items[].preview_url" }
+				{ field: "track_number", path: "tracks.items[].track_number" }
+				{ field: "artists", path: "tracks.items[].artists[].name" }
+				{ field: "duration_ms", path: "tracks.items[].duration_ms" }
+				{ field: "external_ids", path: "tracks.items[].external_ids.isrc" }
+				{ field: "external_urls", path: "tracks.items[].external_urls.spotify" }
+				{ field: "id", path: "tracks.items[].id" }
+				{ field: "images", path: "tracks.items[].album.images" }
+				{ field: "artistID", path: "tracks.items[].artists[].id" }
+			]
+		)
+}
+
+
+type spotify_Available_markets {
+	markets: JSON
 }
 
 
@@ -765,6 +873,7 @@ type Spotify_Track {
 	uri: String
 
 	images: [Spotify_Image]
+	artistID: String
 }
 
 type Spotify_Get_Audio_Features_For_List_Of_Tracks_Audio_Feature {
@@ -908,94 +1017,3 @@ type Spotify_Audio_Analysis_For_A_Track {
 }
 
 
-
-type Query {
-	ipApi_location(ip: String!, lang: String! = "en"): IpApi_Location
-		@rest(
-			endpoint: "http://ip-api.com/json/$ip?fields=64745471&lang=$lang"
-			setters: [{ field: "ip", path: "query" }]
-		)
-	ipApi_stepzen_request: IpApi_StepZen_Request @connector(type: "request")
-	ipApi_location_Auto(lang: String! = "en"): IpApi_Location
-		@sequence(
-			steps: [
-				{ query: "ipApi_stepzen_request" }
-				{
-					query: "ipApi_location"
-					arguments: [{ name: "ip", field: "clientIp" }]
-				}
-			]
-		)
-
-
-
-	  spotify_Recommendations(
-    access_token: String!
-    # min_acousticness: Int
-    # max_liveness: Int
-    # target_acousticness: Int
-    # min_liveness: Int
-    # min_speechiness: Int
-    seed_artists: String!
-    # target_energy: Int
-    seed_genres: String!
-    market: String
-    # max_speechiness: Int
-    # min_instrumentalness: Int
-    # target_instrumentalness: Int
-    # min_energy: Int
-    # max_instrumentalness: Int
-    # max_loudness: Int
-    # target_popularity: Int
-    # max_acousticness: Int
-    # min_popularity: Int
-    # target_duration_ms: Int
-    # min_danceability: Int
-    # max_danceability: Int
-    # target_danceability: Int
-    # target_speechiness: Int
-    # max_popularity: Int
-    # min_loudness: Int
-    # target_liveness: Int
-    seed_tracks: String!
-    # max_energy: Int
-    # target_loudness: Int
-	# limit: Int
-  ): Spotify_Recommendations
-    @rest(
-      endpoint: "https://api.spotify.com/v1/recommendations?limit=30&market=$market&seed_artists=$seed_artists&seed_genres=$seed_genres&seed_tracks=$seed_tracks"
-      headers: [{ name: "Authorization", value: "Bearer $access_token" }]
-    )
-
-
-	spotify_Search(
-		access_token: String!
-		q: String
-		limit: Int
-		offset: Int
-	): [Spotify_Track]
-		@rest(
-			endpoint: "https://api.spotify.com/v1/search?q=$q&type=track&limit=$limit&offset=$offset"
-			headers: [{ name: "Authorization", value: "Bearer $access_token" }]
-			setters: [
-				{ field: "album", path: "tracks.items[].album.name" }
-				{ field: "type", path: "tracks.items[].type" }
-				{ field: "uri", path: "tracks.items[].uri" }
-				{ field: "href", path: "tracks.href" }
-				{ field: "name", path: "tracks.items[].name" }
-				{ field: "is_local", path: "tracks.items[].is_local" }
-				{ field: "popularity", path: "tracks.items[].popularity" }
-				{ field: "disc_number", path: "tracks.items[].disc_number" }
-				{ field: "explicit", path: "tracks.items[].explicit" }
-				{ field: "preview_url", path: "tracks.items[].preview_url" }
-				{ field: "track_number", path: "tracks.items[].track_number" }
-				{ field: "artists", path: "tracks.items[].artists[].name" }
-				{ field: "duration_ms", path: "tracks.items[].duration_ms" }
-				{ field: "external_ids", path: "tracks.items[].external_ids.isrc" }
-				{ field: "external_urls", path: "tracks.items[].external_urls.spotify" }
-				{ field: "id", path: "tracks.items[].id" }
-				{ field: "images", path: "tracks.items[].album.images" }
-			]
-		)
-
-}
